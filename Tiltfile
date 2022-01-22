@@ -161,6 +161,28 @@ k8s_yaml(helm(
   name = 'dinsro',
   namespace = 'dinsro',
   values=["./target/dinsro_values.yaml"],
+  # set = [
+  #   "database.enabled=%s" % ('true' if use_persistence else 'false'),
+  #   "devtools.enabled=%s" % ('false' if local_devtools else 'true'),
+  #   "devtools.ingress.enabled=%s" % ('false' if local_devtools else 'true'),
+  #   "devtools.ingress.hosts[0].host=%s" % devtools_host,
+  #   'devtools.ingress.hosts[0].paths[0].path=/',
+  #   "image.tag=%s" % ('latest' if use_production else 'dev-sources-latest'),
+  #   'ingress.enabled=true',
+  #   'ingress.hosts[0].host=' + base_url,
+  #   'ingress.hosts[0].paths[0].path=/',
+  #   # "ingress.annotations[0]="
+  #   "ingress.tls[0].secretName=dinsro-tls",
+  #   "ingress.tls[0].hosts[0]=" + base_url,
+  #   "notebook.enabled=%s" % ('true' if use_notebook else 'false'),
+  #   "notebook.ingress.hosts[0].host=%s" % get_notebook_host(),
+  #   'notebook.ingress.hosts[0].paths[0].path=/',
+  #   "nrepl.enabled=%s" % ('true' if use_nrepl else 'false'),
+  #   "persistence.enabled=%s" % ('true' if use_persistence else 'false'),
+  #   "workspaces.enabled=%s" % ('false' if local_devtools else 'true'),
+  #   "portal.ingress.hosts[0].host=" + config_get('portalHost'),
+  #   'portal.ingress.hosts[0].paths[0].path=/',
+  # ]
 ))
 
 if use_production:
