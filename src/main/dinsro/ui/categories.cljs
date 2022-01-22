@@ -91,6 +91,17 @@
    ro/source-attribute ::m.categories/index
    ro/title            "Categories"})
 
+(report/defsc-report CategoriesSubReport
+  [_this _props]
+  {ro/field-formatters {::m.categories/user (fn [_this props] (u.links/ui-user-link props))}
+   ro/form-links       {::m.categories/name CategoryForm}
+   ro/columns          [m.categories/name]
+   ro/row-actions      []
+   ro/row-pk           m.categories/id
+   ro/run-on-mount?    true
+   ro/source-attribute ::m.categories/all-categories
+   ro/title            "Categories"})
+
 (report/defsc-report AdminIndexCategoriesReport
   [_this _props]
   {ro/columns          [m.categories/name m.categories/user]
