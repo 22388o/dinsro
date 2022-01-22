@@ -50,28 +50,33 @@
    :action    connect-action
    :disabled? (fn [_ row-props] (:account/active? row-props))})
 
+(def fetch-button
+  {:label     "Fetch"
+   :action    fetch-action
+   :disabled? (fn [_ row-props] (:account/active? row-props))})
+
 (form/defsc-form CoreNodeBlockSubform
   [_this _props]
-  {fo/id           m.c.blocks/id
+  {fo/id           m.core-block/id
    fo/title        "Blocks"
    fo/route-prefix "node-block"
    fo/attributes   [m.c.blocks/hash m.c.blocks/height]})
 
 (form/defsc-form CoreNodeTxSubform
   [_this _props]
-  {fo/id           m.c.tx/id
+  {fo/id           m.core-tx/id
    fo/title        "Core Node Transactions"
    fo/attributes   [m.c.tx/hex m.c.tx/version m.c.tx/block]
    fo/route-prefix "node-tx"
    fo/subforms     {::m.c.tx/block {fo/ui CoreNodeBlockSubform}}})
 
-(def fetch-button
+(def fetch-button2
   {:type   :button
    :local? true
    :label  "Fetch"
    :action (fn [this _]
-             (let [{::m.c.nodes/keys [id]} (comp/props this)]
-               (comp/transact! this [(mu.c.nodes/fetch! {::m.c.nodes/id id})])))})
+             (let [{::m.core-nodes/keys [id]} (comp/props this)]
+               (comp/transact! this [(mu.core-nodes/fetch! {::m.core-nodes/id id})])))})
 
 (def fetch-peers-button
   {:type   :button

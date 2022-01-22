@@ -13,19 +13,25 @@
   {ao/target    ::m.categories/id
    ao/pc-output [{::m.categories/admin-index [::m.categories/id]}]
    ao/pc-resolve
-   (fn [_env _]
-     (let [ids #?(:clj (q.categories/index-ids) :cljs [])]
+   (fn [{:keys [query-params] :as env} _]
+     (let [ids #?(:clj (if-let [user-id (a.authentication/get-user-id env)]
+                         ;; TODO: verify admin
+                         (q.categories/index-ids)
+                         [])
+                  :cljs [])]
+       (comment query-params env)
        {::m.categories/admin-index (m.categories/idents ids)}))})
 
 (defattr index ::m.categories/index :ref
   {ao/target    ::m.categories/id
    ao/pc-output [{::m.categories/index [::m.categories/id]}]
    ao/pc-resolve
-   (fn [env _]
-     (comment env)
-     (let [ids #?(:clj (if-let [user-id (a.authentication/get-user-id env)]
-                         (q.categories/find-by-user user-id) [])
-                  :cljs [])]
+   (fn [{:keys [query-params] :as env} _]
+     (let [ids     #?(:clj (if-let [user-id (a.authentication/get-user-id env)]
+                             (q.categories/find-by-user user-id)
+                             [])
+                      :cljs [])]
+       (comment query-params env)
        {::m.categories/index (m.categories/idents ids)}))})
 
 (defattr transactions ::m.categories/transactions :ref

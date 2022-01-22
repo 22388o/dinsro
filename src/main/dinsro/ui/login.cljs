@@ -11,11 +11,13 @@
    [com.fulcrologic.semantic-ui.elements.button.ui-button :refer [ui-button]]
    [dinsro.model.users :as m.users]
    [dinsro.mutations]
-   [dinsro.mutations.session :as mu.session]))
+   [dinsro.mutations.session :as mu.session]
+   [dinsro.translations :refer [tr]]))
 
 (defsc LoginPage
-  [this {:user/keys [message password username]} {:keys [visible?]}]
-  {:ident               (fn [_] [:component/id ::LoginPage])
+  [this {:user/keys [message password username]
+         :as        props} {:keys [visible?]}]
+  {:ident               (fn [_] [:page/id ::page])
    :initial-state       {:user/username m.users/default-username
                          :user/message  nil
                          :user/password m.users/default-password}
@@ -23,7 +25,7 @@
    ::auth/check-session `dinsro.mutations.session/check-session
    ::auth/logout        `dinsro.mutations.session/logout
    :query               [[::auth/authorization :local]
-                         :component/id
+                         :page/id
                          :user/username
                          :user/password
                          :user/message]
