@@ -4,9 +4,10 @@
    [com.fulcrologic.fulcro.components :as comp :refer [defsc]]
    [com.fulcrologic.fulcro.data-fetch :as df]
    [com.fulcrologic.fulcro.dom :as dom]
-   [com.fulcrologic.fulcro.routing.dynamic-routing :as dr :refer [defrouter]]
+   [com.fulcrologic.fulcro.routing.dynamic-routing :as dr]
    [com.fulcrologic.rad.form :as form]
    [com.fulcrologic.rad.form-options :as fo]
+   [com.fulcrologic.rad.ids :refer [new-uuid]]
    [com.fulcrologic.rad.report :as report]
    [com.fulcrologic.rad.report-options :as ro]
    [dinsro.joins.currencies :as j.currencies]
@@ -26,41 +27,32 @@
 (def override-form false)
 
 (defsc ShowCurrency
-  [this {::m.currencies/keys [code name] :as props}]
+  [_this {::m.currencies/keys [code name] :as _props}]
   {}
   (dom/div {}
-    (dom/p {} "Name: " name)))
+    (dom/p {} "Name: " name)
+    (dom/p {} "Code: " code)))
 
 (defsc ShowCurrencyPage
-  [this {::m.currencies/keys [id name]
-         :as                 props}]
-  {:ident         (fn []
-                    (log/spy :info props)
-                    [::m.currencies/id (log/spy :info "ident id" id)])
+  [_this {::m.currencies/keys [id name]}]
+  {:ident         (fn [] [::m.currencies/id (new-uuid id)])
    :query         [::m.currencies/id
                    ::m.currencies/name]
-   :initial-state {::m.currencies/id nil
+   :initial-state {::m.currencies/id   nil
                    ::m.currencies/name ""}
    :route-segment ["currencies" :id]
    :will-enter
    (fn [app {id :id}]
-     (let [ident [::m.currencies/id (log/spy :info id)]]
-       (if (log/spy :info (-> (app/current-state app) (get-in (log/spy :info ident)) ::m.currencies/name))
-         (do
-           (log/info "immediate")
-           (dr/route-immediate ident))
-         (do
-           (log/info "deferred")
-           (dr/route-deferred
-            [::m.currencies/id id]
-            #(df/load app [::m.currencies/id id] ShowCurrencyPage
-                      {:post-mutation `dr/target-ready
-                       :post-mutation-params
-                       {:target [::m.currencies/id id]}}))))
-       #_ident))}
+     (let [ident [::m.currencies/id (new-uuid id)]]
+       (if (-> (app/current-state app) (get-in ident) ::m.currencies/name)
+         (dr/route-immediate ident)
+         (let [options  {:post-mutation        `dr/target-ready
+                         :post-mutation-params {:target ident}}
+               callback #(df/load app ident ShowCurrencyPage options)]
+           (dr/route-deferred ident callback)))))}
   (dom/div {}
     (dom/h1 {} "Show Currency")
-    (log/spy :info props)))
+    (dom/p {} (str "Name: " name))))
 
 (def ui-show-currency (comp/factory ShowCurrency))
 
@@ -105,9 +97,8 @@
   [_this _props]
   {ro/column-formatters
    {::m.currencies/name
-    (fn [this name {::m.currencies/keys [id]}]
-      (u.links/ui-currency-link {::m.currencies/id id ::m.currencies/name name})
-      #_(dom/a {:onClick #(form/edit! this CurrencyForm id)} name))}
+    (fn [_this name {::m.currencies/keys [id]}]
+      (u.links/ui-currency-link {::m.currencies/id id ::m.currencies/name name}))}
    ro/columns          [m.currencies/name
                         m.currencies/code]
    ro/controls         {::new new-button}
