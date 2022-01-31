@@ -177,3 +177,5 @@
    ro/run-on-mount?    true
    ro/source-attribute ::m.accounts/index
    ro/title            "Accounts"})
+
+(def ui-accounts-sub-report (comp/factory AccountsSubReport))
