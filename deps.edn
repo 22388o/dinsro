@@ -14,6 +14,7 @@
   com.fzakaria/slf4j-timbre              {:mvn/version "0.3.21"}
   com.github.igrishaev/farseer-client    {:mvn/version "0.1.1"}
   com.lambdaisland/glogi                 {:mvn/version "1.1.144"}
+  com.lambdaisland/kaocha-cljs           {:mvn/version "1.0.113"}
   com.taoensso/timbre                    {:mvn/version "5.1.2"}
   com.wsscode/pathom                     {:mvn/version "2.4.0"}
   com.xtdb/xtdb-core                     {:mvn/version "1.20.0"}
@@ -23,6 +24,8 @@
   edn-query-language/eql                 {:mvn/version "2021.07.18"}
   http.async.client/http.async.client    {:mvn/version "1.3.1"}
   io.pedestal/pedestal.log               {:mvn/version "0.5.9"}
+  lambdaisland/kaocha                    {:mvn/version "1.60.977"}
+  lambdaisland/kaocha-cljs2              {:mvn/version "0.0.35"}
   lt.jocas/clj-jq                        {:mvn/version "1.1.4"}
   manifold/manifold                      {:mvn/version "0.2.3"}
   metosin/reitit                         {:mvn/version "0.5.15"}
@@ -81,8 +84,7 @@
    :extra-deps
    {binaryage/devtools      {:mvn/version "1.0.2"}
     nubank/workspaces       {:mvn/version "1.1.2"}
-    fulcrologic/fulcro-spec {:mvn/version "3.1.12"}
-    thheller/shadow-cljs    {:mvn/version "2.15.12"}}}
+    fulcrologic/fulcro-spec {:mvn/version "3.1.12"}}}
 
   :dev-main
   {:main-opts ["-m" "dinsro.core"]}
@@ -144,6 +146,8 @@
    :main-opts ["-m" "shadow.cljs.devtools.cli"]}
 
   :test
-  {:extra-deps
-   {lambdaisland/kaocha {:mvn/version "1.60.977"}}
-   :main-opts ["-m" "kaocha.runner"]}}}
+  {:main-opts ["-m" "kaocha.runner"]}
+
+  :test-cljs
+  {:extra-deps {olical/cljs-test-runner {:mvn/version "3.8.0"}}
+   :main-opts  ["-m" "cljs-test-runner.main"]}}}

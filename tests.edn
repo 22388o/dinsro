@@ -1,7 +1,23 @@
 #kaocha/v1
-{:tests    [{:id           :unit
-             :focus-meta   [:focus]
-             :source-paths ["src/main" "src/shared"]
-             :test-paths   ["src/test"]
-             :ns-patterns  [".*"]}]
+{:tests    [
+            ;; {:id   :unit-cljs
+            ;;  :type :kaocha.type/cljs
+            ;;  ;; :source-paths ["src/main" "src/shared"]
+            ;;  :test-paths   ["src/test"]
+            ;;  ;; :cljs/timeout 10000                        ; 10 seconds, the default
+            ;;  ;; :cljs/repl-env cljs.repl.node/repl-env     ; node is the default
+            ;;  ;; :cljs/repl-env cljs.repl.browser/repl-env
+            ;;  }
+
+            ;; {:id :unit-cljs2
+            ;;  :type :kaocha.type/cljs2
+            ;;  :test-paths   ["src/test"]}
+
+            ;; {:id           :unit-clj
+            ;;  :focus-meta   [:focus]
+            ;;  :source-paths ["src/main" "src/shared"]
+            ;;  :test-paths   ["src/test"]
+            ;;  :ns-patterns  [".*"]}
+
+            ]
  :reporter [kaocha.report/documentation]}

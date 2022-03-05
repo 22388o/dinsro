@@ -309,6 +309,10 @@ jar-deps:
   SAVE ARTIFACT ${USER_HOME}/.m2
   SAVE ARTIFACT .cpcache
 
+karma-builder:
+  FROM +builder
+  DO +INSTALL_CHROMIUM
+
 kibit:
   FROM +dev-sources
   RUN bb kibit
@@ -357,7 +361,7 @@ test-clj:
   RUN bb test-clj
 
 test-cljs:
-  FROM +test-sources
+  FROM +karma-builder
   RUN bb test-cljs
 
 test-sources:

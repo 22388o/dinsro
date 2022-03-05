@@ -35,7 +35,9 @@
                 :http-port  3691
                 :preloads   [com.fulcrologic.fulcro.inspect.preload
                              com.fulcrologic.fulcro.inspect.dom-picker-preload
-                             com.fulcrologic.fulcro.inspect.websocket-preload]}
+                             com.fulcrologic.fulcro.inspect.websocket-preload
+                             ;; lambdaisland.chui.remote
+                             ]}
    :modules    {:main {:init-fn dinsro.client/start}}
    :output-dir "resources/main/public/js"
    :release    {}
@@ -48,6 +50,15 @@
    :ns-regexp "-test$"
    :target    :browser-test
    :test-dir  "target/tests"}
+
+  :test-kaocha {:target    :browser-test
+                :runner-ns kaocha.cljs2.shadow-runner
+                :test-dir  "target/kaocha-test"
+                :ns-regexp ".*-test$"
+
+                :devtools {:http-port 1818
+                           :http-root "target/kaocha-test"
+                           :preloads [lambdaisland.chui.remote]}}
 
   :workspaces
   {:asset-path "/js"
