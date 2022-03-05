@@ -359,6 +359,13 @@ if local_devtools:
     labels = [ 'compile' ],
   )
 
+local_resource(
+  'funnel',
+  allow_parallel = True,
+  serve_cmd='bb funnel',
+  labels = [ 'compile' ],
+)
+
 if use_linting:
   local_resource(
     'eastwood',
