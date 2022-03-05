@@ -69,6 +69,7 @@
             ::m.navbar/dropdown-links []
             :inverted                 true})}))
 
+#_{:clj-kondo/ignore [:clojure-lsp/unused-public-var]}
 (ws/defcard Navbar
   {::wsm/align       {:flex 1}
    ::wsm/card-height 5
