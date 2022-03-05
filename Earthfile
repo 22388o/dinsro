@@ -92,7 +92,6 @@ base-builder:
   ENV USER_HOME=/home/${dev_user}
   USER root
   DO +INSTALL_NODE
-  DO +INSTALL_CHROMIUM
   DO +INSTALL_BABASHKA
   DO +INSTALL_KONDO
   RUN chown -R ${uid}:${gid} ${src_home}
