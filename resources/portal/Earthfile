@@ -1,0 +1,34 @@
+ARG base_image=cimg/clojure:1.10-node
+ARG repo=duck1123
+ARG version=latest
+ARG src_home=/usr/src/app
+
+IMPORT ../base as base
+
+# INSTALL_BABASHKA:
+#   COMMAND
+#   # FIXME: This always downloads the latest version, enable pinning
+#   RUN curl -sLO https://raw.githubusercontent.com/babashka/babashka/master/install \
+#       && chmod +x install \
+#       && ./install \
+#       && rm -f install
+
+babashka-base:
+  ARG base_image=${base_image}
+  ARG src_home
+  FROM ${base_image?}
+  WORKDIR ${src_home?}
+  USER root
+  DO ../base+INSTALL_BABASHKA
+
+portal:
+  FROM base+babashka-base
+  ARG repo=${repo}
+  ARG version=${version}
+  ARG EXPECTED_REF=${repo?}/portal:${version?}
+  # RUN apk add java
+  COPY . .
+  ENTRYPOINT ["bb", "portal.clj"]
+  CMD ["bb", "portal.clj"]
+  RUN bb portal.clj --dry-run
+  SAVE IMAGE ${EXPECTED_REF?}

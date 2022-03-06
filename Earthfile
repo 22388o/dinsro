@@ -53,14 +53,6 @@ IMPORT_JAR_DEPS:
        /root
   COPY --dir --chown=circleci +jar-deps/.cpcache .
 
-INSTALL_BABASHKA:
-  COMMAND
-  # FIXME: This always downloads the latest version, enable pinning
-  RUN curl -sLO https://raw.githubusercontent.com/babashka/babashka/master/install \
-      && chmod +x install \
-      && ./install \
-      && rm -f install
-
 INSTALL_CHROMIUM:
   COMMAND
   RUN snap install chromium-browser
@@ -69,31 +61,14 @@ INSTALL_CHROMIUM:
   #     && rm -rf /var/lib/apt/lists/*
   ENV CHROME_BIN=chromium-browser
 
-INSTALL_KONDO:
-  COMMAND
-  RUN curl -sLO https://raw.githubusercontent.com/clj-kondo/clj-kondo/master/script/install-clj-kondo \
-      && chmod +x install-clj-kondo \
-      && echo Version: $kondo_version \
-      && ./install-clj-kondo --version $kondo_version \
-      && rm -f install-clj-kondo
-
-INSTALL_NODE:
-  COMMAND
-  RUN curl -fsSL https://deb.nodesource.com/setup_18.x | bash - \
-      && apt-get install -y nodejs \
-      && rm -rf /var/lib/apt/lists/*
-  RUN npm install -g npm@${npm_version}
-  # RUN npm install -g yarn
-  RUN npm install -g karma-cli
-
 base-builder:
   FROM ${base_image}
   WORKDIR ${src_home}
   ENV USER_HOME=/home/${dev_user}
   USER root
-  DO +INSTALL_NODE
-  DO +INSTALL_BABASHKA
-  DO +INSTALL_KONDO
+  DO ./resources/base+INSTALL_NODE --npm_version=${npm_version}
+  DO ./resources/base+INSTALL_BABASHKA
+  DO ./resources/base+INSTALL_KONDO --kondo_version=${kondo_version}
   RUN chown -R ${uid}:${gid} ${src_home}
   RUN apt update && apt install -y \
           sudo \
@@ -101,12 +76,6 @@ base-builder:
           tree \
       && rm -rf /var/lib/apt/lists/*
   USER ${uid}
-
-babashka-base:
-  FROM ${base_image}
-  WORKDIR ${src_home}
-  USER root
-  DO +INSTALL_BABASHKA
 
 builder:
   FROM +deps-builder
@@ -332,16 +301,6 @@ node-deps:
   # RUN npx yarn add fomantic-ui --ignore-scripts
   RUN npx yarn install --frozen-lockfile
   SAVE ARTIFACT node_modules
-
-portal:
-  FROM +babashka-base
-  ARG EXPECTED_REF=${repo}/portal:${version}
-  # RUN apk add java
-  COPY resources/portal .
-  ENTRYPOINT ["bb", "portal.clj"]
-  CMD ["bb", "portal.clj"]
-  RUN bb portal.clj --dry-run
-  SAVE IMAGE --push ${EXPECTED_REF}
 
 script-builder:
   FROM +base-builder

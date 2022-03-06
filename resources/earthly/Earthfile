@@ -1,0 +1,5 @@
+ARG base_image=cimg/clojure:1.10-node
+
+default:
+  FROM ${base_image}
+  RUN --no-cache date
