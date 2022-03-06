@@ -53,22 +53,14 @@ IMPORT_JAR_DEPS:
        /root
   COPY --dir --chown=circleci +jar-deps/.cpcache .
 
-INSTALL_CHROMIUM:
-  COMMAND
-  RUN snap install chromium-browser
-  # RUN apt update && apt install -y \
-  #         chromium-browser \
-  #     && rm -rf /var/lib/apt/lists/*
-  ENV CHROME_BIN=chromium-browser
-
 base-builder:
   FROM ${base_image}
   WORKDIR ${src_home}
   ENV USER_HOME=/home/${dev_user}
   USER root
-  DO ./resources/base+INSTALL_NODE --npm_version=${npm_version}
-  DO ./resources/base+INSTALL_BABASHKA
-  DO ./resources/base+INSTALL_KONDO --kondo_version=${kondo_version}
+  DO ./resources/earthly+INSTALL_NODE --npm_version=${npm_version}
+  DO ./resources/earthly+INSTALL_BABASHKA
+  DO ./resources/earthly+INSTALL_KONDO --kondo_version=${kondo_version}
   RUN chown -R ${uid}:${gid} ${src_home}
   RUN apt update && apt install -y \
           sudo \
@@ -280,7 +272,7 @@ jar-deps:
 
 karma-builder:
   FROM +builder
-  DO +INSTALL_CHROMIUM
+  DO ./resources/earthly+INSTALL_CHROMIUM
 
 kibit:
   FROM +dev-sources
@@ -301,6 +293,9 @@ node-deps:
   # RUN npx yarn add fomantic-ui --ignore-scripts
   RUN npx yarn install --frozen-lockfile
   SAVE ARTIFACT node_modules
+
+portal:
+  BUILD ./resources/earthly+portal
 
 script-builder:
   FROM +base-builder
