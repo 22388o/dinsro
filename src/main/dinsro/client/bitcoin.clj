@@ -2,8 +2,6 @@
   (:require
    [clojure.spec.alpha :as s]
    [com.fulcrologic.guardrails.core :refer [>def >defn =>]]
-   [dinsro.specs :as ds]
-   [expound.alpha :as expound]
    [farseer.client :as client]
    [farseer.spec.client :as s.client]
    [lambdaisland.glogc :as log]))
@@ -29,12 +27,6 @@
        (if error
          (throw (RuntimeException. (pr-str error)))
          result)))))
-
-(>defn get-transaction
-  "Fetch a tx specified by its txid"
-  [client tx-id]
-  [::s.client/config string? => any?]
-  (handle-request client :gettransaction [tx-id true]))
 
 (>defn get-raw-transaction
   [client tx-id]
@@ -86,21 +78,10 @@
                 ::blocks
                 ::mediantime]))
 
-(comment
-
-  (ds/gen-key ::blockchain-info)
-
-  nil)
-
 (>defn get-blockchain-info
   [client]
   [::s.client/config => ::blockchain-info]
   (handle-request client :getblockchaininfo))
-
-(>defn verify-message
-  [client address signature message]
-  [::s.client/config string? string? string? => any?]
-  (handle-request client :verifymessage [address signature message]))
 
 (>defn generate-to-address
   [client address]
@@ -138,33 +119,6 @@
                        ::nTx
                        ::version]))
 
-(comment
-
-  (def example-block
-    {:strippedsize  285,
-     :hash          "0f9188f13cb7b2c71f2a335e3a4fc328bf5beb436012afca590b1a11466e2206",
-     :versionHex    "00000001",
-     :difficulty    4.656542373906925E-10,
-     :time          1296688602,
-     :merkleroot    "4a5e1e4baab89f3a32518a88c31bc87f618f76673e2cc77ab2127b7afdeda33b",
-     :bits          "207fffff",
-     :size          285,
-     :confirmations 1,
-     :tx            ["4a5e1e4baab89f3a32518a88c31bc87f618f76673e2cc77ab2127b7afdeda33b"],
-     :weight        1140,
-     :chainwork     "0000000000000000000000000000000000000000000000000000000000000002",
-     :nTx           1,
-     :version       1,
-     :nonce         2,
-     :height        0,
-     :mediantime    1296688602})
-
-  (expound/expound ::block-data example-block)
-
-  (ds/gen-key ::block-data)
-
-  nil)
-
 (>defn fetch-block-by-hash
   [client hash]
   [::s.client/config string? => ::block-data]
@@ -180,11 +134,6 @@
   [::s.client/config number? => any?]
   (let [hash (get-block-hash client height)]
     (fetch-block-by-hash client hash)))
-
-(>defn fetch-tx
-  [client tx-id]
-  [::s.client/config string? => any?]
-  (handle-request client :getrawtransaction [tx-id true]))
 
 (>defn add-node
   "Add a peer connection to a given uri"
