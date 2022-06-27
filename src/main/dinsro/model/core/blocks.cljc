@@ -3,6 +3,7 @@
   (:require
    [clojure.set :as set]
    [clojure.spec.alpha :as s]
+   [com.fulcrologic.guardrails.core :refer [>def >defn =>]]
    [com.fulcrologic.rad.attributes :as attr :refer [defattr]]
    [com.fulcrologic.rad.attributes-options :as ao]
    [com.fulcrologic.rad.report :as report]
@@ -139,8 +140,17 @@
   {ao/identities #{::id}
    ao/schema     :production})
 
-(defn prepare-params
+(s/def ::params
+  (s/keys :req [::hash ::height ::node ::fetched?]
+          :opt [::bits ::chainwork ::difficulty ::merkle-root ::nonce ::size ::time
+                ::transaction-count ::median-time ::weight ::version-hex ::stripped-size
+                ::version ::next-block ::previous-block]))
+
+(>def ::unprepared-params (s/keys))
+
+(>defn prepare-params
   [params]
+  [::unprepared-params => ::params]
   (log/debug :prepare-params/preparing {:params params})
   (let [params                   (set/rename-keys params rename-map)
         {::keys [time fetched?]} params
@@ -153,11 +163,6 @@
     (log/info :prepare-params/prepared {:params params :updated-params updated-params})
     updated-params))
 
-(s/def ::params
-  (s/keys :req [::hash ::height ::node ::fetched?]
-          :opt [::bits ::chainwork ::difficulty ::merkle-root ::nonce ::size ::time
-                ::transaction-count ::median-time ::weight ::version-hex ::stripped-size
-                ::version ::next-block ::previous-block]))
 (s/def ::item
   (s/keys :req [::id ::hash ::height ::node ::fetched?]
           :opt [::bits ::chainwork ::difficulty ::merkle-root ::nonce ::size ::time
