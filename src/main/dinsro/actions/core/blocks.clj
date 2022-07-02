@@ -87,7 +87,15 @@
   (if-let [core-node-id (::m.c.nodes/id node)]
     (let [client (a.c.node-base/get-client node)]
       (if-let [block (c.bitcoin-s/fetch-block-by-height client height)]
-        (update-neighbors core-node-id block height)
+        (do
+          (log/info :update-block-by-height/found-block
+                    {:block block :core-node-id core-node-id})
+          (let [block-record (q.c.blocks/fetch-by-node-and-height core-node-id height)]
+            (log/info :update-block-by-height/found-block-record
+                      {:block        block :core-node-id core-node-id
+                       :block-record block-record})
+            (::m.c.blocks/id block-record))
+          #_(update-neighbors core-node-id block height))
         (throw (RuntimeException. "no block"))))
     (throw (RuntimeException. "no node id"))))
 
