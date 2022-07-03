@@ -99,7 +99,9 @@
                          :updated-id   updated-id})
               #_(update-neighbors core-node-id block height)
               updated-id)
-            (throw (RuntimeException. "Failed to find block record"))))
+            (do
+              (update-block! core-node-id height block)
+              (throw (RuntimeException. "Failed to find block record")))))
         (throw (RuntimeException. "Failed to fetch block from node"))))
     (throw (RuntimeException. "Node does not contain an id."))))
 
