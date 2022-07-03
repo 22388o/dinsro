@@ -90,12 +90,16 @@
         (do
           (log/info :update-block-by-height/found-block
                     {:block block :core-node-id core-node-id})
-          (let [block-record (q.c.blocks/fetch-by-node-and-height core-node-id height)]
-            (log/info :update-block-by-height/found-block-record
-                      {:block        block :core-node-id core-node-id
-                       :block-record block-record})
-            (::m.c.blocks/id block-record))
-          #_(update-neighbors core-node-id block height))
+          (if-let [block-record (q.c.blocks/fetch-by-node-and-height core-node-id height)]
+            (let [updated-id (::m.c.blocks/id block-record)]
+              (log/info :update-block-by-height/found-block-record
+                        {:block        block
+                         :block-record block-record
+                         :core-node-id core-node-id
+                         :updated-id   updated-id})
+              #_(update-neighbors core-node-id block height)
+              updated-id)
+            (throw (RuntimeException. "Failed to find block record"))))
         (throw (RuntimeException. "Failed to fetch block from node"))))
     (throw (RuntimeException. "Node does not contain an id."))))
 
