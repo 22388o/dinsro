@@ -71,11 +71,11 @@
           [block-id params] (update-block! core-node-id height params)]
       (doseq [tx-id (::m.c.blocks/tx params)]
         (if-let [existing-id (q.c.tx/fetch-by-txid tx-id)]
-          (log/info :update-neighbors/exists {:tx-id existing-id})
+          (log/info :update-neighbors/tx-exists {:tx-id existing-id})
           (let [params {::m.c.tx/block    block-id
                         ::m.c.tx/tx-id    tx-id
                         ::m.c.tx/fetched? false}]
-            (log/debug :update-neighbors/creating {:params params})
+            (log/debug :update-neighbors/tx-creating {:params params})
             (q.c.tx/create-record params))))
       block-id)))
 
@@ -96,8 +96,8 @@
                        :block-record block-record})
             (::m.c.blocks/id block-record))
           #_(update-neighbors core-node-id block height))
-        (throw (RuntimeException. "no block"))))
-    (throw (RuntimeException. "no node id"))))
+        (throw (RuntimeException. "Failed to fetch block from node"))))
+    (throw (RuntimeException. "Node does not contain an id."))))
 
 (>defn fetch-blocks
   "Fetch the latest block for a node"
