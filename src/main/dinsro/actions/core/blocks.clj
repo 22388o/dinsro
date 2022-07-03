@@ -90,15 +90,17 @@
         (do
           (log/info :update-block-by-height/found-block
                     {:block block :core-node-id core-node-id})
-          (if-let [block-record (q.c.blocks/fetch-by-node-and-height core-node-id height)]
-            (let [updated-id (::m.c.blocks/id block-record)]
-              (log/info :update-block-by-height/found-block-record
-                        {:block        block
-                         :block-record block-record
-                         :core-node-id core-node-id
-                         :updated-id   updated-id})
-              #_(update-neighbors core-node-id block height)
-              updated-id)
+          (if-let [block-record-id (q.c.blocks/fetch-by-node-and-height core-node-id height)]
+            (if-let [block-record (q.c.blocks/read-record block-record-id)]
+              (let [updated-id (::m.c.blocks/id block-record)]
+                (log/info :update-block-by-height/found-block-record
+                          {:block        block
+                           :block-record block-record
+                           :core-node-id core-node-id
+                           :updated-id   updated-id})
+                #_(update-neighbors core-node-id block height)
+                updated-id)
+              (throw (RuntimeException. "Failed to read record")))
             (do
               (update-block! core-node-id height block)
               (throw (RuntimeException. "Failed to find block record")))))
