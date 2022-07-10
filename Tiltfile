@@ -44,6 +44,9 @@ portal_url       = 'http://' + config_get('portalHost')
 devcards_url     = 'http://devcards.dinsro.localhost'
 devcards_devtools_url     = 'http://devtools.devcards.dinsro.localhost'
 
+alice_lnd = True
+bob_lnd = True
+
 def get_notebooks_host():
   return "notebooks." + base_url if notebooks.get('inheritHost') else notebooks_host
 
@@ -117,44 +120,47 @@ local_resource(
   labels = [ 'compile' ],
 )
 
-local_resource(
-  'alice-values',
-  allow_parallel = True,
-  cmd='bb generate-lnd-values alice',
-  deps = [
-    'site.edn',
-    'src/shared',
-    'src/babashka',
-  ],
-  labels = [ 'compile' ],
-)
+if alice_lnd:
+  local_resource(
+    'alice-values',
+    allow_parallel = True,
+    cmd='bb generate-lnd-values alice',
+    deps = [
+      'site.edn',
+      'src/shared',
+      'src/babashka',
+    ],
+    labels = [ 'compile' ],
+  )
 
-local_resource(
-  'bob-values',
-  allow_parallel = True,
-  cmd='bb generate-lnd-values bob',
-  deps = [
-    'site.edn',
-    'src/shared',
-    'src/babashka',
-  ],
-  labels = [ 'compile' ],
-)
+if bob_lnd:
+  local_resource(
+    'bob-values',
+    allow_parallel = True,
+    cmd='bb generate-lnd-values bob',
+    deps = [
+      'site.edn',
+      'src/shared',
+      'src/babashka',
+    ],
+    labels = [ 'compile' ],
+  )
 
-k8s_yaml(helm(
-  'resources/helm/fold/charts/lnd',
-  name = 'alice',
-  namespace = 'alice',
-  values = [ "./conf/alice/lnd_values.yaml" ]
-))
+if alice_lnd:
+  k8s_yaml(helm(
+    'resources/helm/fold/charts/lnd',
+    name = 'alice',
+    namespace = 'alice',
+    values = [ "./conf/alice/lnd_values.yaml" ]
+  ))
 
-k8s_yaml(helm(
-  'resources/helm/fold/charts/lnd',
-  name = 'bob',
-  namespace = 'bob',
-  values = [ "./conf/bob/lnd_values.yaml" ]
-))
-
+if bob_lnd:
+  k8s_yaml(helm(
+    'resources/helm/fold/charts/lnd',
+    name = 'bob',
+    namespace = 'bob',
+    values = [ "./conf/bob/lnd_values.yaml" ]
+  ))
 
 k8s_yaml(helm(
   'resources/helm/dinsro',

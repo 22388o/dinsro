@@ -28,6 +28,15 @@
   :inheritHost true
   :host        "docs.dinsro.localhost"}
 
+ :nodes
+ {"alice"
+  {:bitcoin true
+   :lnd     true}
+
+  "bob"
+  {:bitcoin true
+   :lnd     true}}
+
  :notebooks
  {
   ;; Should the notebooks be started?
