@@ -44,7 +44,8 @@ portal_url       = 'http://' + config_get('portalHost')
 devcards_url     = 'http://devcards.dinsro.localhost'
 devcards_devtools_url     = 'http://devtools.devcards.dinsro.localhost'
 
-alice_lnd = True
+alice_lnd = False
+# alice_lnd = True
 bob_lnd = True
 
 def get_notebooks_host():
@@ -91,12 +92,12 @@ def earthly_build(
     skips_local_docker=skips_local_docker,
   )
 
-disable_snapshots()
-docker_prune_settings(
-  disable = False,
-  num_builds = 2,
-  keep_recent = 2,
-)
+# disable_snapshots()
+# docker_prune_settings(
+#   disable = False,
+#   num_builds = 2,
+#   keep_recent = 2,
+# )
 
 # Create Namespaces
 namespace_create(
