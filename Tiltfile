@@ -92,13 +92,6 @@ def earthly_build(
     skips_local_docker=skips_local_docker,
   )
 
-# disable_snapshots()
-# docker_prune_settings(
-#   disable = False,
-#   num_builds = 2,
-#   keep_recent = 2,
-# )
-
 # Create Namespaces
 namespace_create(
   'dinsro',
@@ -121,127 +114,76 @@ local_resource(
   labels = [ 'compile' ],
 )
 
-if alice_lnd:
+def bitcoin_environment(name):
   local_resource(
-    'alice-values',
+    "%s-bitcoind-values" % name,
     allow_parallel = True,
-    cmd='bb generate-lnd-values alice',
+    cmd = "bb generate-bitcoind-values %s" % name,
     deps = [
       'site.edn',
       'src/shared',
       'src/babashka',
     ],
-    labels = [ 'alice' ],
+    labels = [ "%s-values" % name ],
   )
-
-if alice_lnd:
   local_resource(
-    'alice-rtl-values',
+    "%s-lnd-values" % name,
     allow_parallel = True,
-    cmd='bb generate-rtl-values alice',
+    cmd = "bb generate-lnd-values %s" % name,
     deps = [
       'site.edn',
       'src/shared',
       'src/babashka',
     ],
-    labels = [ 'alice' ],
+    labels = [ "%s-values" % name ],
   )
-
-if bob_lnd:
   local_resource(
-    'bob-values',
+    "%s-rtl-values" % name,
     allow_parallel = True,
-    cmd='bb generate-lnd-values bob',
+    cmd = "bb generate-rtl-values %s" % name,
     deps = [
       'site.edn',
       'src/shared',
       'src/babashka',
     ],
-    labels = [ 'bob' ],
+    labels = [ "%s-values" % name ],
   )
-
-if alice_lnd:
-  local_resource(
-    'bob-rtl-values',
-    allow_parallel = True,
-    cmd='bb generate-rtl-values bob',
-    deps = [
-      'site.edn',
-      'src/shared',
-      'src/babashka',
-    ],
-    labels = [ 'bob' ],
-  )
-
-if alice_lnd:
   k8s_yaml(helm(
     'resources/helm/fold/charts/lnd',
-    name = 'alice',
-    namespace = 'alice',
-    values = [ "./conf/alice/lnd_values.yaml" ]
+    name = name,
+    namespace = name,
+    values = [ "./conf/%s/lnd_values.yaml" % name ]
   ))
   k8s_resource(
-    workload = 'alice-lnd',
-    labels = [ 'alice' ],
+    workload = "%s-lnd" % name,
+    labels = [ name ],
     links = [
-      link('http://lnd.alice.localhost', 'web')
+      link("http://lnd.%s.localhost" % name, 'web')
     ]
+  )
+  k8s_yaml(helm(
+    'resources/helm/rtl',
+    name = name,
+    namespace = name,
+    values = [ "./conf/%s/rtl_values.yaml" % name ]
+  ))
+  k8s_resource(
+    workload = "rtl:deployment:%s" % name,
+    labels = [ name ],
+    links = [
+      link("http://rtl.%s.localhost" % name, 'web')
+    ]
+  )
+  k8s_resource(
+    workload = "cert-downloader:job:%s" % name,
+    labels = [ name ],
   )
 
 if alice_lnd:
-  k8s_yaml(helm(
-    'resources/helm/rtl',
-    name = 'alice',
-    namespace = 'alice',
-    values = [ "./conf/alice/rtl_values.yaml" ]
-  ))
-  k8s_resource(
-    workload = 'rtl:deployment:alice',
-    labels = [ 'alice' ],
-    links = [
-      link('http://rtl.alice.localhost', 'web')
-    ]
-  )
-  k8s_resource(
-    workload = 'cert-downloader:job:alice',
-    labels = [ 'alice' ],
-  )
+  bitcoin_environment('alice')
 
 if bob_lnd:
-  k8s_yaml(helm(
-    'resources/helm/fold/charts/lnd',
-    name = 'bob',
-    namespace = 'bob',
-    values = [ "./conf/bob/lnd_values.yaml" ]
-  ))
-  k8s_resource(
-    workload = 'bob-lnd',
-    labels = [ 'bob' ],
-    links = [
-      link('http://lnd.bob.localhost', 'web')
-    ]
-  )
-
-if alice_lnd:
-  k8s_yaml(helm(
-    'resources/helm/rtl',
-    name = 'bob-rtl',
-    namespace = 'bob',
-    values = [ "./conf/bob/rtl_values.yaml" ]
-  ))
-  k8s_resource(
-    workload = 'rtl:deployment:bob',
-    labels = [ 'bob' ],
-    links = [
-      link('http://rtl.bob.localhost', 'web')
-    ]
-  )
-  k8s_resource(
-    workload = 'cert-downloader:job:bob',
-    labels = [ 'bob' ],
-  )
-
-
+  bitcoin_environment('bob')
 
 k8s_yaml(helm(
   'resources/helm/lnbits',
