@@ -163,6 +163,20 @@ if bob_lnd:
     values = [ "./conf/bob/lnd_values.yaml" ]
   ))
 
+
+k8s_yaml(helm(
+  'resources/helm/lnbits',
+  name = 'alice-lnbits',
+  namespace = 'alice',
+  set = [
+    "ingress.hosts[0].host=lnbits.alice.dev.kronkltd.net",
+    "ingress.hosts[0].paths[0].path=/",
+    "ingress.hosts[0].paths[0].pathType=ImplementationSpecific",
+  ]
+  # values = [ "./conf/bob/lnd_values.yaml" ]
+))
+
+
 k8s_yaml(helm(
   'resources/helm/dinsro',
   name = 'dinsro',
