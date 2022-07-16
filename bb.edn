@@ -160,6 +160,10 @@
      (spit (str "target/dinsro_values.yaml") (yaml/generate-string
                                               (h.dinsro/->dinsro-config (site/get-site-config)))))}
 
+  generate-fileserver-values
+  {:doc  "generate a fileserver values file"
+   :task (c/generate-fileserver-values)}
+
   generate-lnd-values
   {:doc  "generate a lnd values file"
    :task (c/generate-lnd-values)}

@@ -5,6 +5,7 @@
    [clojure.string :as string]
    [clj-yaml.core :as yaml]
    [dinsro.helm.dinsro :as h.dinsro]
+   [dinsro.helm.fileserver :as h.fileserver]
    [dinsro.helm.lnd :as h.lnd]
    [dinsro.helm.rtl :as h.rtl]
    [dinsro.site :as site]))
@@ -193,6 +194,14 @@
         (shell compile-cmd)
         (future (shell watch-cmd)))
       (shell run-cmd))))
+
+(defn generate-fileserver-values
+  []
+  (let [name    (or (first *command-line-args*) "3")
+        options (h.fileserver/->value-options {:name name})
+        yaml    (yaml/generate-string (h.fileserver/->values options))]
+    (mkdir (format "conf/%s" name))
+    (spit (format "conf/%s/fileserver_values.yaml" name) yaml)))
 
 (defn generate-lnd-values
   []

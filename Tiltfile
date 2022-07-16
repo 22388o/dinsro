@@ -114,70 +114,135 @@ local_resource(
   labels = [ 'compile' ],
 )
 
+use_bitcoin = True
+use_lnd = True
+use_fileserver = True
+use_rtl = True
+
 def bitcoin_environment(name):
-  local_resource(
-    "%s-bitcoind-values" % name,
-    allow_parallel = True,
-    cmd = "bb generate-bitcoind-values %s" % name,
-    deps = [
-      'site.edn',
-      'src/shared',
-      'src/babashka',
-    ],
-    labels = [ "%s-values" % name ],
-  )
-  local_resource(
-    "%s-lnd-values" % name,
-    allow_parallel = True,
-    cmd = "bb generate-lnd-values %s" % name,
-    deps = [
-      'site.edn',
-      'src/shared',
-      'src/babashka',
-    ],
-    labels = [ "%s-values" % name ],
-  )
-  local_resource(
-    "%s-rtl-values" % name,
-    allow_parallel = True,
-    cmd = "bb generate-rtl-values %s" % name,
-    deps = [
-      'site.edn',
-      'src/shared',
-      'src/babashka',
-    ],
-    labels = [ "%s-values" % name ],
-  )
-  k8s_yaml(helm(
-    'resources/helm/fold/charts/lnd',
-    name = name,
-    namespace = name,
-    values = [ "./conf/%s/lnd_values.yaml" % name ]
-  ))
-  k8s_resource(
-    workload = "%s-lnd" % name,
-    labels = [ name ],
-    links = [
-      link("http://lnd.%s.localhost" % name, 'web')
-    ]
-  )
-  k8s_yaml(helm(
-    'resources/helm/rtl',
-    name = name,
-    namespace = name,
-    values = [ "./conf/%s/rtl_values.yaml" % name ]
-  ))
-  k8s_resource(
-    workload = "rtl:deployment:%s" % name,
-    labels = [ name ],
-    links = [
-      link("http://rtl.%s.localhost" % name, 'web')
-    ]
-  )
-  k8s_resource(
-    workload = "cert-downloader:job:%s" % name,
-    labels = [ name ],
-  )
+  if use_bitcoin:
+    local_resource(
+      "%s-bitcoind-values" % name,
+      allow_parallel = True,
+      cmd = "bb generate-bitcoind-values %s" % name,
+      deps = [
+        'site.edn',
+        'src/shared',
+        'src/babashka',
+      ],
+      labels = [ "%s-values" % name ],
+    )
+  if use_lnd:
+    local_resource(
+      "%s-lnd-values" % name,
+      allow_parallel = True,
+      cmd = "bb generate-lnd-values %s" % name,
+      deps = [
+        'site.edn',
+        'src/shared',
+        'src/babashka',
+      ],
+      labels = [ "%s-values" % name ],
+    )
+    k8s_yaml(helm(
+      'resources/helm/fold/charts/lnd',
+      name = name,
+      namespace = name,
+      values = [ "./conf/%s/lnd_values.yaml" % name ],
+    ))
+    k8s_resource(
+      workload = "%s-lnd" % name,
+      labels = [ name ],
+    )
+  if use_fileserver:
+    local_resource(
+      "%s-fileserver-values" % name,
+      allow_parallel = True,
+      cmd = "bb generate-fileserver-values %s" % name,
+      deps = [
+        'site.edn',
+        'src/shared',
+        'src/babashka',
+      ],
+      labels = [ "%s-values" % name ],
+    )
+    k8s_yaml(helm(
+      'resources/helm/fileserver',
+      name = name,
+      namespace = name,
+      values = [ "./conf/%s/fileserver_values.yaml" % name ],
+      set = [
+        'persistence.enabled=true',
+        "persistence.existingClaim=%s-lnd" % name,
+      ],
+    ))
+    k8s_resource(
+      workload = "%s-fileserver" % name,
+      labels = [ name ],
+      links = [
+        link("http://lnd.%s.localhost" % name, 'web')
+      ],
+    )
+  if use_rtl:
+    local_resource(
+      "%s-rtl-values" % name,
+      allow_parallel = True,
+      cmd = "bb generate-rtl-values %s" % name,
+      deps = [
+        'site.edn',
+        'src/shared',
+        'src/babashka',
+      ],
+      labels = [ "%s-values" % name ],
+    )
+    k8s_yaml(helm(
+      'resources/helm/rtl',
+      name = name,
+      namespace = name,
+      values = [ "./conf/%s/rtl_values.yaml" % name ]
+    ))
+    k8s_resource(
+      workload = "rtl:deployment:%s" % name,
+      labels = [ name ],
+      links = [
+        link("http://rtl.%s.localhost" % name, 'web')
+      ]
+    )
+    k8s_resource(
+      workload = "cert-downloader:job:%s" % name,
+      labels = [ name ],
+    )
+
+earthly_build(
+  "%s/cert-downloader:%s" % (repo, version),
+  '+cert-downloader',
+  deps = [
+    'Earthfile',
+    '.dockerignore',
+    'bb.edn',
+    'src',
+    'resources/cert-downloader',
+    'deps.edn',
+    'site.edn',
+    'site-defaults.edn',
+  ],
+)
+
+earthly_build(
+  "%s/lnd-fileserver:%s" % (repo, version),
+  '+fileserver',
+  deps = [
+    'Earthfile',
+    '.dockerignore',
+    'bb.edn',
+    'src',
+    'resources/fileserver',
+    'deps.edn',
+    'site.edn',
+    'site-defaults.edn',
+  ],
+)
+
 
 if alice_lnd:
   bitcoin_environment('alice')
