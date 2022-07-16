@@ -43,7 +43,7 @@
 
 (comment
 
-  (a.c.nodes/generate-to-address! node "bcrt1qyyvtjwguj3z6dlqdd66zs2zqqe6tp4qzy0cp6g")
+  (a.c.nodes/generate-to-address! node "bcrt1q7yc0hj2v9zcrdjdlm4lm0hqrq969y9ags92773")
 
   nil)
 
