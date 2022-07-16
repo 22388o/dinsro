@@ -169,9 +169,10 @@ k8s_yaml(helm(
   name = 'alice-lnbits',
   namespace = 'alice',
   set = [
-    "ingress.hosts[0].host=lnbits.alice.dev.kronkltd.net",
-    "ingress.hosts[0].paths[0].path=/",
-    "ingress.hosts[0].paths[0].pathType=ImplementationSpecific",
+    "persistence.existingClaim=alice-lnd"
+    # "ingress.hosts[0].host=lnbits.alice.dev.kronkltd.net",
+    # "ingress.hosts[0].paths[0].path=/",
+    # "ingress.hosts[0].paths[0].pathType=ImplementationSpecific",
   ]
   # values = [ "./conf/bob/lnd_values.yaml" ]
 ))
