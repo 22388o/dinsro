@@ -44,8 +44,8 @@ portal_url       = 'http://' + config_get('portalHost')
 devcards_url     = 'http://devcards.dinsro.localhost'
 devcards_devtools_url     = 'http://devtools.devcards.dinsro.localhost'
 
-alice_lnd = False
-# alice_lnd = True
+# alice_lnd = False
+alice_lnd = True
 bob_lnd = True
 
 def get_notebooks_host():
