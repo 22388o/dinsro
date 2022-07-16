@@ -131,7 +131,20 @@ if alice_lnd:
       'src/shared',
       'src/babashka',
     ],
-    labels = [ 'compile' ],
+    labels = [ 'alice' ],
+  )
+
+if alice_lnd:
+  local_resource(
+    'alice-rtl-values',
+    allow_parallel = True,
+    cmd='bb generate-rtl-values alice',
+    deps = [
+      'site.edn',
+      'src/shared',
+      'src/babashka',
+    ],
+    labels = [ 'alice' ],
   )
 
 if bob_lnd:
@@ -144,7 +157,20 @@ if bob_lnd:
       'src/shared',
       'src/babashka',
     ],
-    labels = [ 'compile' ],
+    labels = [ 'bob' ],
+  )
+
+if alice_lnd:
+  local_resource(
+    'bob-rtl-values',
+    allow_parallel = True,
+    cmd='bb generate-rtl-values bob',
+    deps = [
+      'site.edn',
+      'src/shared',
+      'src/babashka',
+    ],
+    labels = [ 'bob' ],
   )
 
 if alice_lnd:
@@ -154,6 +180,32 @@ if alice_lnd:
     namespace = 'alice',
     values = [ "./conf/alice/lnd_values.yaml" ]
   ))
+  k8s_resource(
+    workload = 'alice-lnd',
+    labels = [ 'alice' ],
+    links = [
+      link('http://lnd.alice.localhost', 'web')
+    ]
+  )
+
+if alice_lnd:
+  k8s_yaml(helm(
+    'resources/helm/rtl',
+    name = 'alice',
+    namespace = 'alice',
+    values = [ "./conf/alice/rtl_values.yaml" ]
+  ))
+  k8s_resource(
+    workload = 'rtl:deployment:alice',
+    labels = [ 'alice' ],
+    links = [
+      link('http://rtl.alice.localhost', 'web')
+    ]
+  )
+  k8s_resource(
+    workload = 'cert-downloader:job:alice',
+    labels = [ 'alice' ],
+  )
 
 if bob_lnd:
   k8s_yaml(helm(
@@ -162,6 +214,33 @@ if bob_lnd:
     namespace = 'bob',
     values = [ "./conf/bob/lnd_values.yaml" ]
   ))
+  k8s_resource(
+    workload = 'bob-lnd',
+    labels = [ 'bob' ],
+    links = [
+      link('http://lnd.bob.localhost', 'web')
+    ]
+  )
+
+if alice_lnd:
+  k8s_yaml(helm(
+    'resources/helm/rtl',
+    name = 'bob-rtl',
+    namespace = 'bob',
+    values = [ "./conf/bob/rtl_values.yaml" ]
+  ))
+  k8s_resource(
+    workload = 'rtl:deployment:bob',
+    labels = [ 'bob' ],
+    links = [
+      link('http://rtl.bob.localhost', 'web')
+    ]
+  )
+  k8s_resource(
+    workload = 'cert-downloader:job:bob',
+    labels = [ 'bob' ],
+  )
+
 
 
 k8s_yaml(helm(
@@ -169,13 +248,21 @@ k8s_yaml(helm(
   name = 'alice-lnbits',
   namespace = 'alice',
   set = [
-    "persistence.existingClaim=alice-lnd"
+    "persistence.certs.existingClaim=alice-lnd"
     # "ingress.hosts[0].host=lnbits.alice.dev.kronkltd.net",
     # "ingress.hosts[0].paths[0].path=/",
     # "ingress.hosts[0].paths[0].pathType=ImplementationSpecific",
   ]
   # values = [ "./conf/bob/lnd_values.yaml" ]
 ))
+k8s_resource(
+  workload = 'alice-lnbits',
+  labels = [ 'alice' ],
+  links = [
+    link('http://lnbits.alice.localhost', 'web')
+  ]
+)
+
 
 
 k8s_yaml(helm(

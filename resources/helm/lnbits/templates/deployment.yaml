@@ -41,9 +41,9 @@ spec:
             - name: LND_GRPC_PORT
               value: "5000"
             - name: LND_GRPC_CERT
-              value: "/mnt/certs/path/tls.cert"
+              value: "/mnt/certs/.lnd/tls.cert"
             - name: LND_GRPC_MACAROON
-              value: "/mnt/certs/path/admin.macaroon"
+              value: "/mnt/certs/.lnd/data/chain/{{ .Values.network }}/admin.macaroon"
           ports:
             - name: http
               containerPort: 5000
@@ -81,8 +81,8 @@ spec:
             claimName: {{ template "lnbits.fullname" . }}-data
         - name: certs
           persistentVolumeClaim:
-            {{- if .Values.persistence.existingClaim }}
-            claimName: {{ .Values.persistence.existingClaim }}
+            {{- if .Values.persistence.certs.existingClaim }}
+            claimName: {{ .Values.persistence.certs.existingClaim }}
             {{- else -}}
             claimName: {{ template "lnbits.fullname" . }}-certs
             {{- end }}
