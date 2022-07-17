@@ -56,7 +56,7 @@
   (def node (q.c.nodes/read-record (q.c.nodes/find-id-by-name node-name)))
   node
 
-  (def client (m.c.nodes/get-client node ""))
+  (def client nil)
   client
 
   (c.bitcoin/add-node client "bitcoin.bitcoin-bob")
