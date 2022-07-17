@@ -20,14 +20,16 @@
   [node-id peer]
   (log/info :update-peer!/starting {:node-id node-id :peer peer})
   (let [{peer-index ::m.c.peers/peer-id} peer]
+    (log/info :update-peer!/got-index {:peer-index peer-index :node-id node-id :peer peer})
     (if-let [existing-peer (q.c.peers/find-by-node-and-peer-id node-id peer-index)]
       (let [peer-id (::m.c.peers/id existing-peer)]
         (log/info :update-peer!/record-exists {:node-id node-id :peer-index peer-index})
         peer-id)
       (do
-        (log/info :update-peer!/record-exists {:node-id node-id :peer-index peer-index})
+        (log/info :update-peer!/record-not-exists {:node-id node-id :peer-index peer-index})
         (let [params (assoc peer ::m.c.peers/node node-id)
               params (m.c.peers/prepare-params params)]
+          (log/info :update-peer!/params-prepared {:params params})
           (q.c.peers/create-record params))))))
 
 (>defn fetch-peers!
