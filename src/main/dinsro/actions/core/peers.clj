@@ -44,8 +44,10 @@
   [node address]
   [::m.c.nodes/item string? => any?]
   (log/info :add-peer!/starting {:node-id (::m.c.nodes/id node) :address address})
-  (let [client (a.c.node-base/get-client node)]
-    (c.bitcoin-s/add-node client address)))
+  (let [client   (a.c.node-base/get-client node)
+        response (c.bitcoin-s/add-node client address)]
+    (log/info :add-peer!/finished {:response response})
+    response))
 
 (defn create!
   "Create a new peer connection for this node"
