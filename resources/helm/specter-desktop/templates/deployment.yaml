@@ -29,6 +29,15 @@ spec:
       serviceAccountName: {{ include "specter-desktop.serviceAccountName" . }}
       securityContext:
         {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      initContainers:
+        - name: copy-node-config
+          image: busybox
+          command: ['sh', '-c', 'ls -al /data-config && cp /data-config/default.json /data/.specter/nodes/default.json']
+          volumeMounts:
+            - name: specter
+              mountPath: /data
+            - name: config
+              mountPath: /data-config
       containers:
         - name: {{ .Chart.Name }}
           securityContext:
