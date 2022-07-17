@@ -1,7 +1,6 @@
 (ns dinsro.model.core.peers
   (:refer-clojure :exclude [name])
   (:require
-   [clojure.set :as set]
    [clojure.spec.alpha :as s]
    [com.fulcrologic.guardrails.core :refer [>defn =>]]
    [com.fulcrologic.rad.attributes :as attr :refer [defattr]]
