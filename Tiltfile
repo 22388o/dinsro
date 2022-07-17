@@ -220,7 +220,7 @@ earthly_build(
     'Earthfile',
     '.dockerignore',
     'bb.edn',
-    'src',
+    # 'src',
     'resources/cert-downloader',
     'deps.edn',
     'site.edn',
