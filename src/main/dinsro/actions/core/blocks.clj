@@ -98,7 +98,7 @@
                            :block-record block-record
                            :core-node-id core-node-id
                            :updated-id   updated-id})
-                #_(update-neighbors core-node-id block height)
+                (update-neighbors core-node-id block height)
                 updated-id)
               (throw (RuntimeException. "Failed to read record")))
             (do
