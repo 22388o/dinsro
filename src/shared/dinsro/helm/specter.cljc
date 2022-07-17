@@ -43,7 +43,7 @@
   [{:keys [name] :as options}]
   (let [options (merge-defaults options)
         host    (str "specter." name ".localhost")]
-    {:image        {:tag "v1.7.2"}
+    {:image        {:tag "v1.10.3"}
      :ingress      {:hosts [{:host  host
                              :paths [{:path "/"}]}]}
      :persistence  {:storageClassName "local-path"}

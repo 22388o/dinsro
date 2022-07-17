@@ -23,7 +23,10 @@
     (log/info :update-peer!/got-index {:peer-index peer-index :node-id node-id :peer peer})
     (if-let [existing-peer (q.c.peers/find-by-node-and-peer-id node-id peer-index)]
       (let [peer-id (::m.c.peers/id existing-peer)]
-        (log/info :update-peer!/record-exists {:node-id node-id :peer-index peer-index})
+        (log/info :update-peer!/record-exists
+                  {:node-id    node-id
+                   :peer-index peer-index
+                   :peer-id    peer-id})
         peer-id)
       (do
         (log/info :update-peer!/record-not-exists {:node-id node-id :peer-index peer-index})

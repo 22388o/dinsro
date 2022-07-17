@@ -181,7 +181,7 @@ def bitcoin_environment(name):
       workload = "%s-fileserver" % name,
       labels = [ name ],
       links = [
-        link("http://lnd.%s.localhost" % name, 'web')
+        link("http://lnd.%s.localhost" % name, 'fileserver')
       ],
     )
   if use_rtl:
@@ -206,7 +206,7 @@ def bitcoin_environment(name):
       workload = "rtl:deployment:%s" % name,
       labels = [ name ],
       links = [
-        link("http://rtl.%s.localhost" % name, 'web')
+        link("http://rtl.%s.localhost" % name, 'rtl')
       ]
     )
     k8s_resource(
@@ -235,7 +235,7 @@ def bitcoin_environment(name):
       workload = "%s-specter-desktop" % name,
       labels = [ name ],
       links = [
-        link("http://specter.%s.localhost" % name, 'web')
+        link("http://specter.%s.localhost" % name, 'specter')
       ]
     )
 
@@ -292,7 +292,7 @@ k8s_resource(
   workload = 'alice-lnbits',
   labels = [ 'alice' ],
   links = [
-    link('http://lnbits.alice.localhost', 'web')
+    link('http://lnbits.alice.localhost', 'lnbits')
   ]
 )
 
