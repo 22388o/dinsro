@@ -40,6 +40,7 @@
   "Fetch and update a block from the node"
   [core-node-id height params]
   [::m.c.nodes/id ::m.c.blocks/height any? => (s/tuple ::m.c.blocks/id ::m.c.blocks/params)]
+  (log/info :update-block!/starting {:core-node-id core-node-id :height height :params params})
   (if-let [existing-block-id (q.c.blocks/fetch-by-node-and-height core-node-id height)]
     (if (q.c.blocks/read-record existing-block-id)
       (let [params (m.c.blocks/prepare-params params)
@@ -47,9 +48,9 @@
             id     (q.c.blocks/update-block existing-block-id params)]
         [id params])
       (throw (RuntimeException. "cannot find existing block")))
-    (let [params (m.c.blocks/prepare-params params)
+    (let [params (assoc params ::m.c.blocks/node core-node-id)
           params (assoc params ::m.c.blocks/fetched? true)
-          params (assoc params ::m.c.blocks/node core-node-id)
+          params (m.c.blocks/prepare-params params)
           id     (q.c.blocks/create-record params)]
       [id params])))
 

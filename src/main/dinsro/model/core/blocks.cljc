@@ -161,7 +161,13 @@
                                      (assoc ::fetched? (boolean fetched?))
                                      (dissoc ::confirmations))]
     (log/info :prepare-params/prepared {:params params :updated-params updated-params})
-    updated-params))
+    (merge
+     updated-params
+     {::hash     hash
+      ::height   height
+      ::node     node
+      ::fetched fetched?})
+    #_updated-params))
 
 (s/def ::item
   (s/keys :req [::id ::hash ::height ::node ::fetched?]
