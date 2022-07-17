@@ -85,8 +85,9 @@
                       ::addr            (get-in params [:network-info :addr])
                       ::peer-id         (:id params)
                       ::connection-type (:connection-type params)
-                      ::node            ::node}]
-    (log/info :prepare-params/finished {:prepared prepared})))
+                      ::node            (::node params)}]
+    (log/info :prepare-params/finished {:prepared prepared})
+    prepared))
 
 (>defn ident
   [id]
