@@ -46,6 +46,8 @@ spec:
           volumeMounts:
           - mountPath: /data
             name: specter
+          - mountPath: /data-config
+            name: config
           ports:
           - name: specter
             containerPort: {{.Values.service.port}}
@@ -76,3 +78,6 @@ spec:
         - name: specter
           persistentVolumeClaim:
             claimName: {{ include "specter-desktop.fullname" . }}
+        - name: config
+          configMap:
+            name: config

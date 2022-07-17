@@ -118,6 +118,7 @@ use_bitcoin = True
 use_lnd = True
 use_fileserver = True
 use_rtl = True
+use_specter = True
 
 def bitcoin_environment(name):
   if use_bitcoin:
@@ -211,6 +212,31 @@ def bitcoin_environment(name):
     k8s_resource(
       workload = "cert-downloader:job:%s" % name,
       labels = [ name ],
+    )
+  if use_specter:
+    local_resource(
+      "%s-specter-values" % name,
+      allow_parallel = True,
+      cmd = "bb generate-specter-values %s" % name,
+      deps = [
+        'site.edn',
+        'src/shared',
+        'src/babashka',
+      ],
+      labels = [ "%s-values" % name ],
+    )
+    k8s_yaml(helm(
+      'resources/helm/specter-desktop',
+      name = name,
+      namespace = name,
+      values = [ "./conf/%s/specter_values.yaml" % name ]
+    ))
+    k8s_resource(
+      workload = "%s-specter-desktop" % name,
+      labels = [ name ],
+      links = [
+        link("http://specter.%s.localhost" % name, 'web')
+      ]
     )
 
 earthly_build(

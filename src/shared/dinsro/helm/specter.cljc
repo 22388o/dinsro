@@ -1,4 +1,7 @@
-(ns dinsro.helm.specter)
+(ns dinsro.helm.specter
+  (:require
+   #?(:clj [clj-yaml.core :as yaml])
+   #?(:cljs [dinsro.yaml :as yaml])))
 
 (defn ->node-config
   [options]
@@ -13,7 +16,7 @@
      :host          host
      :protocol      "http"
      :external_node true
-     :fullpath      (format "/data/.specter/nodes/%s.json" name)}))
+     :fullpath      (str "/data/.specter/nodes/" name ".json")}))
 
 (defn merge-defaults
   [options]
@@ -41,3 +44,7 @@
                              :paths [{:path "/"}]}]}
      :persistence  {:storageClassName "local-path"}
      :walletConfig (prn-str (->node-config options))}))
+
+(defn ->values-yaml
+  [options]
+  (yaml/generate-string (->values (merge-defaults options))))
